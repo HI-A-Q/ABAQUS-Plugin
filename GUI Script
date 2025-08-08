@@ -1,0 +1,104 @@
+from abaqusConstants import *
+from abaqusGui import *
+from kernelAccess import mdb, session
+import os
+
+thisPath = os.path.abspath(__file__)
+thisDir = os.path.dirname(thisPath)
+
+
+###########################################################################
+# Class definition
+###########################################################################
+
+class MytoolDB(AFXDataDialog):
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def __init__(self, form):
+
+        # Construct the base class.
+        #
+
+        AFXDataDialog.__init__(self, form, 'Module',
+            self.OK|self.CANCEL, DIALOG_ACTIONS_SEPARATOR)
+            
+
+        okBtn = self.getActionButton(self.ID_CLICKED_OK)
+        okBtn.setText('OK')
+            
+        l = FXLabel(p=self, text='--------------CM Tool---------', opts=JUSTIFY_LEFT)
+        l = FXLabel(p=self, text='Select Shape', opts=JUSTIFY_LEFT)
+        TabBook_1 = FXTabBook(p=self, tgt=None, sel=0,
+            opts=TABBOOK_NORMAL,
+            x=0, y=0, w=0, h=0, pl=DEFAULT_SPACING, pr=DEFAULT_SPACING,
+            pt=DEFAULT_SPACING, pb=DEFAULT_SPACING)
+        tabItem = FXTabItem(p=TabBook_1, text='Circle', ic=None, opts=TAB_TOP_NORMAL,
+            x=0, y=0, w=0, h=0, pl=6, pr=6, pt=DEFAULT_PAD, pb=DEFAULT_PAD)
+        TabItem_1 = FXVerticalFrame(p=TabBook_1,
+            opts=FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,
+            x=0, y=0, w=0, h=0, pl=DEFAULT_SPACING, pr=DEFAULT_SPACING,
+            pt=DEFAULT_SPACING, pb=DEFAULT_SPACING, hs=DEFAULT_SPACING, vs=DEFAULT_SPACING)
+        HFrame_1 = FXHorizontalFrame(p=TabItem_1, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        fileName = os.path.join(thisDir, 'circle.png')
+        icon = afxCreatePNGIcon(fileName)
+        FXLabel(p=HFrame_1, text='', ic=icon)
+        VFrame_1 = FXVerticalFrame(p=HFrame_1, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        l = FXLabel(p=VFrame_1, text='Range:', opts=JUSTIFY_LEFT)
+        AFXTextField(p=VFrame_1, ncols=12, labelText='R_max', tgt=form.circle_maxKw, sel=0)
+        AFXTextField(p=VFrame_1, ncols=12, labelText='R_min', tgt=form.circle_minKw, sel=0)
+        tabItem = FXTabItem(p=TabBook_1, text='Ellipse', ic=None, opts=TAB_TOP_NORMAL,
+            x=0, y=0, w=0, h=0, pl=6, pr=6, pt=DEFAULT_PAD, pb=DEFAULT_PAD)
+        TabItem_2 = FXVerticalFrame(p=TabBook_1,
+            opts=FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,
+            x=0, y=0, w=0, h=0, pl=DEFAULT_SPACING, pr=DEFAULT_SPACING,
+            pt=DEFAULT_SPACING, pb=DEFAULT_SPACING, hs=DEFAULT_SPACING, vs=DEFAULT_SPACING)
+        HFrame_2 = FXHorizontalFrame(p=TabItem_2, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        fileName = os.path.join(thisDir, 'ellipse.png')
+        icon = afxCreatePNGIcon(fileName)
+        FXLabel(p=HFrame_2, text='', ic=icon)
+        VFrame_2 = FXVerticalFrame(p=HFrame_2, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        AFXTextField(p=VFrame_2, ncols=12, labelText='B/A,(0.5<=B/A<1)', tgt=form.aKw, sel=0)
+        l = FXLabel(p=VFrame_2, text='Range:', opts=JUSTIFY_LEFT)
+        AFXTextField(p=VFrame_2, ncols=12, labelText='A_max', tgt=form.a_maxKw, sel=0)
+        AFXTextField(p=VFrame_2, ncols=12, labelText='A_min', tgt=form.a_minKw, sel=0)
+        tabItem = FXTabItem(p=TabBook_1, text='Regular Polygon(2<N<9)', ic=None, opts=TAB_TOP_NORMAL,
+            x=0, y=0, w=0, h=0, pl=6, pr=6, pt=DEFAULT_PAD, pb=DEFAULT_PAD)
+        TabItem_3 = FXVerticalFrame(p=TabBook_1,
+            opts=FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,
+            x=0, y=0, w=0, h=0, pl=DEFAULT_SPACING, pr=DEFAULT_SPACING,
+            pt=DEFAULT_SPACING, pb=DEFAULT_SPACING, hs=DEFAULT_SPACING, vs=DEFAULT_SPACING)
+        HFrame_3 = FXHorizontalFrame(p=TabItem_3, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        fileName = os.path.join(thisDir, 'polygon.png')
+        icon = afxCreatePNGIcon(fileName)
+        FXLabel(p=HFrame_3, text='', ic=icon)
+        VFrame_3 = FXVerticalFrame(p=HFrame_3, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        AFXTextField(p=VFrame_3, ncols=12, labelText='N', tgt=form.nKw, sel=0)
+        l = FXLabel(p=VFrame_3, text='Range:', opts=JUSTIFY_LEFT)
+        AFXTextField(p=VFrame_3, ncols=12, labelText='N_max', tgt=form.n_maxKw, sel=0)
+        AFXTextField(p=VFrame_3, ncols=12, labelText='N_min', tgt=form.n_minKw, sel=0)
+        tabItem = FXTabItem(p=TabBook_1, text='Rodlike', ic=None, opts=TAB_TOP_NORMAL,
+            x=0, y=0, w=0, h=0, pl=6, pr=6, pt=DEFAULT_PAD, pb=DEFAULT_PAD)
+        TabItem_4 = FXVerticalFrame(p=TabBook_1,
+            opts=FRAME_RAISED|FRAME_THICK|LAYOUT_FILL_X,
+            x=0, y=0, w=0, h=0, pl=DEFAULT_SPACING, pr=DEFAULT_SPACING,
+            pt=DEFAULT_SPACING, pb=DEFAULT_SPACING, hs=DEFAULT_SPACING, vs=DEFAULT_SPACING)
+        HFrame_4 = FXHorizontalFrame(p=TabItem_4, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        fileName = os.path.join(thisDir, 'rodlike.png')
+        icon = afxCreatePNGIcon(fileName)
+        FXLabel(p=HFrame_4, text='', ic=icon)
+        VFrame_4 = FXVerticalFrame(p=HFrame_4, opts=0, x=0, y=0, w=0, h=0,
+            pl=0, pr=0, pt=0, pb=0)
+        AFXTextField(p=VFrame_4, ncols=12, labelText='W', tgt=form.width2Kw, sel=0)
+        AFXTextField(p=VFrame_4, ncols=12, labelText='L/W', tgt=form.ratio2Kw, sel=0)
+        GroupBox_2 = FXGroupBox(p=self, text='Size', opts=FRAME_GROOVE)
+        AFXTextField(p=GroupBox_2, ncols=12, labelText='Length', tgt=form.lengthKw, sel=0)
+        AFXTextField(p=GroupBox_2, ncols=12, labelText='Width', tgt=form.widthKw, sel=0)
+        AFXTextField(p=GroupBox_2, ncols=12, labelText='Depth', tgt=form.depthKw, sel=0)
+        AFXTextField(p=GroupBox_2, ncols=12, labelText='Num', tgt=form.num_circlesKw, sel=0)
