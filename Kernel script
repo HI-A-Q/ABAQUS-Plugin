@@ -1,1 +1,59 @@
+# -*- coding: utf-8 -*-
+from abaqus import *
+from abaqusConstants import *
+import random
+import math
 
+l = 100.0 
+w = 100.0    
+n = 30 
+min_dia = 5.0  
+max_dia = 15.0
+safe_dist = 1.0
+max_attempts = 1000
+holes = [] 
+
+def is_valid_hole(new_hole, existing_holes):
+    x, y, r = new_hole
+    if not (r <= x <= l - r) or not (r <= y <= w - r):
+        return False
+ 
+    for (ex, ey, er) in existing_holes:
+        distance = math.sqrt((x - ex)**2 + (y - ey)**2)
+        if distance < (r + er + safe_dist):
+            return False
+    return True
+
+holes_created = 0
+attempts = 0
+
+while holes_created < n and attempts < max_attempts:
+    diameter = random.uniform(min_dia, max_dia)
+    radius = diameter / 2.0
+    x = random.uniform(0, l)
+    y = random.uniform(0, w)
+    new_hole = (x, y, radius)
+    
+    if is_valid_hole(new_hole, holes):
+        holes.append(new_hole)
+        holes_created += 1
+        attempts = 0 
+    else:
+        attempts += 1
+
+s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=200.0)
+g, v, d, c = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
+s1.setPrimaryObject(option=STANDALONE)
+s1.Line(point1=(0, 0), point2=(0, w))
+s1.Line(point1=(0, w), point2=(l, w))
+s1.Line(point1=(l, w), point2=(l, 0))
+s1.Line(point1=(l, 0), point2=(0, 0))
+for x, y, r in holes:
+    s1.CircleByCenterPerimeter(center=(x, y), point1=(x, y + r))
+p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=THREE_D, type=DEFORMABLE_BODY)
+p = mdb.models['Model-1'].parts['Part-1']
+p.BaseSolidExtrude(sketch=s1, depth=depth_circle)
+s1.unsetPrimaryObject()
+p = mdb.models['Model-1'].parts['Part-1']
+session.viewports['Viewport: 1'].setValues(displayedObject=p)
+del mdb.models['Model-1'].sketches['__profile__']
